@@ -100,6 +100,7 @@ public class Main {
     }
 
     private static void imprimirResultado(List<CultivoSeleccionado> res) {
+        System.out.println("Resultados");
         for (CultivoSeleccionado cultivo : res) {
             System.out.println(cultivo);
         }

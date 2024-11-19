@@ -1,11 +1,11 @@
 package org.example.classes;
 
-import Lib.Coordenada;
+import org.example.classes.Coordenada;
 
 public class CultivoSeleccionado {
     private String nombreCultivo;
-    private Lib.Coordenada esquinaSuperiorIzquierda;
-    private Lib.Coordenada esquinaInferiorDerecha;
+    private Coordenada esquinaSuperiorIzquierda;
+    private Coordenada esquinaInferiorDerecha;
     private double montoInvertido;
     private int riesgoAsociado;
     private double gananciaObtenida;
@@ -13,7 +13,7 @@ public class CultivoSeleccionado {
     public CultivoSeleccionado() {
     }
 
-    public CultivoSeleccionado(String nombreCultivo, Lib.Coordenada esquinaSuperiorIzquierda, Lib.Coordenada esquinaInferiorDerecha, double montoInvertido, int riesgoAsociado, double gananciaObtenida) {
+    public CultivoSeleccionado(String nombreCultivo, Coordenada esquinaSuperiorIzquierda, Coordenada esquinaInferiorDerecha, double montoInvertido, int riesgoAsociado, double gananciaObtenida) {
         this.nombreCultivo = nombreCultivo;
         this.esquinaSuperiorIzquierda = esquinaSuperiorIzquierda;
         this.esquinaInferiorDerecha = esquinaInferiorDerecha;
@@ -30,15 +30,15 @@ public class CultivoSeleccionado {
         this.nombreCultivo = nombreCultivo;
     }
 
-    public Lib.Coordenada getEsquinaSuperiorIzquierda() {
+    public Coordenada getEsquinaSuperiorIzquierda() {
         return this.esquinaSuperiorIzquierda;
     }
 
-    public void setEsquinaSuperiorIzquierda(Lib.Coordenada esquinaSuperiorIzquierda) {
+    public void setEsquinaSuperiorIzquierda(Coordenada esquinaSuperiorIzquierda) {
         this.esquinaSuperiorIzquierda = esquinaSuperiorIzquierda;
     }
 
-    public Lib.Coordenada getEsquinaInferiorDerecha() {
+    public Coordenada getEsquinaInferiorDerecha() {
         return this.esquinaInferiorDerecha;
     }
 

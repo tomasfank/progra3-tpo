@@ -11,11 +11,11 @@ import java.util.List;
 public class PlanificarCultivosImplementacion implements PlanificarCultivos {
     private double mejorGanancia = Double.NEGATIVE_INFINITY;
     private List<CultivoSeleccionado> mejorConfiguracion = new ArrayList<>();
-    private static final int TAMAÑO_CAMPO = 100;
+    private static final int CAMPO_SIZE = 20;
 
     @Override
     public List<CultivoSeleccionado> obtenerPlanificacion(List<Cultivo> cultivosDisponibles, double[][] riesgos, String temporada) {
-        boolean[][] parcelasUsadas = new boolean[TAMAÑO_CAMPO][TAMAÑO_CAMPO];
+        boolean[][] parcelasUsadas = new boolean[CAMPO_SIZE][CAMPO_SIZE];
 
         // Filtrar cultivos por temporada
         List<Cultivo> cultivosTemporada = new ArrayList<>();
@@ -44,8 +44,8 @@ public class PlanificarCultivosImplementacion implements PlanificarCultivos {
         Cultivo cultivoActual = cultivos.get(indiceCultivo);
 
         // Intentar colocar el cultivo en diferentes posiciones
-        for (int i = 0; i < TAMAÑO_CAMPO - 5; i++) {
-            for (int j = 0; j < TAMAÑO_CAMPO - 6; j++) {
+        for (int i = 0; i < CAMPO_SIZE - 5; i++) {
+            for (int j = 0; j < CAMPO_SIZE - 6; j++) {
                 if (esValida(i, j, 5, 6, parcelasUsadas)) {  // Usando dimensiones de ejemplo 5x6
                     // Calcular valores para el cultivo en esta posición
                     double ganancia = calcularGanancia(i, j, 5, 6, cultivoActual, riesgos);
@@ -85,7 +85,7 @@ public class PlanificarCultivosImplementacion implements PlanificarCultivos {
 
     private boolean esValida(int fila, int columna, int alto, int ancho, boolean[][] parcelasUsadas) {
         // Verificar límites del campo
-        if (fila + alto > TAMAÑO_CAMPO || columna + ancho > TAMAÑO_CAMPO) {
+        if (fila + alto > CAMPO_SIZE || columna + ancho > CAMPO_SIZE) {
             return false;
         }
 

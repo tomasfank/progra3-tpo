@@ -92,7 +92,7 @@ public class Main {
         imprimirMatrizDeRiesgos(riesgos);
 
         // Obtener planificación
-        List<CultivoSeleccionado> res = planificador.obtenerPlanificacion(cultivos, riesgos, "Otoño");
+        List<CultivoSeleccionado> res = planificador.obtenerPlanificacion(cultivos, riesgos, "Invierno");
         // Imprimir planificación
         imprimirResultado(res);
     }

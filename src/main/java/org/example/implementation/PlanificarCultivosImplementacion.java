@@ -11,14 +11,28 @@ import java.util.List;
 import java.util.Map;
 
 public class PlanificarCultivosImplementacion implements PlanificarCultivos {
-    private double mejorGanancia = Double.NEGATIVE_INFINITY;
+
+    // Cálculo de complejidad temporal teórica desarrollado
+    // Ejemplos para el cálculo de la complejidad práctica
+    // Dimensión debe ser dinámica
+    // 3 ciclos consecutivos
+    // La elección del cultivo que se repite debe ser basada en cual conviene más… debe evaluarse al final
+
+
+    // Variable para guardar la mejor ganancia.
+    private double mejorGanancia = Double.NEGATIVE_INFINITY; // Double.NEGATIVE_INFINITY representa el valor negativo más pequeño posible.
+    // Lista para almacenar objetos del tipo "CultivoSeleccionado"
     private List<CultivoSeleccionado> mejorConfiguracion = new ArrayList<>();
+    // Tamaño del campo
     private static final int CAMPO_SIZE = 100;
-    private static final int DIMENSION = 5; // Dimensión fija 5x5
+    // Variable para guardar el cultivo que podrá ser plantado multiples veces
     private String cultivoMultiple;
+
+
 
     @Override
     public List<CultivoSeleccionado> obtenerPlanificacion(List<Cultivo> cultivosDisponibles, double[][] riesgos, String temporada) {
+        // Creamos una matriz booleana para almacenar las parcelas que iremos utilizando.
         boolean[][] parcelasUsadas = new boolean[CAMPO_SIZE][CAMPO_SIZE];
         mejorGanancia = Double.NEGATIVE_INFINITY;
         mejorConfiguracion.clear();
@@ -31,15 +45,12 @@ public class PlanificarCultivosImplementacion implements PlanificarCultivos {
             }
         }
 
-        // Seleccionar el cultivo que puede plantarse múltiples veces
-        if (!cultivosTemporada.isEmpty()) {
-            cultivoMultiple = cultivosTemporada.get(0).getNombre();
-        }
-
         double gananciaMaximaPorParcela = calcularGananciaMaximaPorParcela(cultivosTemporada);
+
         Map<String, Integer> cultivosUsados = new HashMap<>();
+
         backtracking(cultivosTemporada, new ArrayList<>(), 0, 0, parcelasUsadas, riesgos,
-                gananciaMaximaPorParcela, cultivosUsados);
+                gananciaMaximaPorParcela, cultivosUsados, cultivoMultiple);
 
         return mejorConfiguracion;
     }
@@ -47,7 +58,7 @@ public class PlanificarCultivosImplementacion implements PlanificarCultivos {
     private void backtracking(List<Cultivo> cultivos, List<CultivoSeleccionado> configuracionActual,
                               int indiceCultivo, double gananciaActual, boolean[][] parcelasUsadas,
                               double[][] riesgos, double gananciaMaximaPorParcela,
-                              Map<String, Integer> cultivosUsados) {
+                              Map<String, Integer> cultivosUsados, String cultivoMultiple) {
 
         int parcelasLibres = contarParcelasLibres(parcelasUsadas);
         double gananciaEstimadaRestante = parcelasLibres * gananciaMaximaPorParcela;
@@ -67,62 +78,59 @@ public class PlanificarCultivosImplementacion implements PlanificarCultivos {
         Cultivo cultivoActual = cultivos.get(indiceCultivo);
         String nombreCultivo = cultivoActual.getNombre();
 
-        // Verificar si el cultivo ya ha sido usado (excepto el cultivoMultiple)
-        if (!nombreCultivo.equals(cultivoMultiple) &&
-                cultivosUsados.getOrDefault(nombreCultivo, 0) > 0) {
-            // Si ya se usó este cultivo y no es el cultivoMultiple, pasar al siguiente
+        // Verificar si el cultivo es el único que puede ser plantado múltiples veces
+        if (!nombreCultivo.equals(cultivoMultiple) && cultivosUsados.getOrDefault(nombreCultivo, 0) > 0) {
             backtracking(cultivos, configuracionActual, indiceCultivo + 1,
-                    gananciaActual, parcelasUsadas, riesgos, gananciaMaximaPorParcela, cultivosUsados);
+                    gananciaActual, parcelasUsadas, riesgos, gananciaMaximaPorParcela, cultivosUsados, cultivoMultiple);
             return;
         }
 
-        // Intentar colocar el cultivo en diferentes posiciones
-        for (int i = 0; i < CAMPO_SIZE - DIMENSION + 1; i++) {
-            for (int j = 0; j < CAMPO_SIZE - DIMENSION + 1; j++) {
-                if (esValida(i, j, parcelasUsadas)) {
-                    // Calcular valores para el cultivo en esta posición
-                    double ganancia = calcularGanancia(i, j, DIMENSION, cultivoActual, riesgos);
-                    double riesgo = calcularRiesgo(i, j, DIMENSION, riesgos);
+        // Iterar sobre posibles dimensiones (N y M) cumpliendo la restricción N + M <= 11
+        for (int N = 1; N <= CAMPO_SIZE; N++) {
+            for (int M = 1; M <= CAMPO_SIZE; M++) {
+                if (N + M <= 11) {  // Asegurarse que la suma de N + M sea <= 11
+                    for (int i = 0; i < CAMPO_SIZE - N + 1; i++) {
+                        for (int j = 0; j < CAMPO_SIZE - M + 1; j++) {
+                            if (esValida(i, j, N, M, parcelasUsadas)) {
+                                double ganancia = calcularGanancia(i, j, N, M, cultivoActual, riesgos);
+                                double riesgo = calcularRiesgo(i, j, N, M, riesgos);
 
-                    // Crear el cultivo seleccionado
-                    CultivoSeleccionado seleccionado = new CultivoSeleccionado();
-                    seleccionado.setNombreCultivo(nombreCultivo);
-                    seleccionado.setEsquinaSuperiorIzquierda(new Coordenada(i, j));
-                    seleccionado.setEsquinaInferiorDerecha(new Coordenada(i + DIMENSION - 1, j + DIMENSION - 1));
-                    seleccionado.setMontoInvertido(
-                            cultivoActual.getInversionRequerida() +
-                                    (cultivoActual.getCostoPorParcela() * DIMENSION * DIMENSION)
-                    );
-                    seleccionado.setRiesgoAsociado((int)(riesgo * 100));
-                    seleccionado.setGananciaObtenida(ganancia);
+                                CultivoSeleccionado seleccionado = new CultivoSeleccionado();
+                                seleccionado.setNombreCultivo(nombreCultivo);
+                                seleccionado.setEsquinaSuperiorIzquierda(new Coordenada(i, j));
+                                seleccionado.setEsquinaInferiorDerecha(new Coordenada(i + N - 1, j + M - 1));
+                                seleccionado.setMontoInvertido(
+                                        cultivoActual.getInversionRequerida() +
+                                                (cultivoActual.getCostoPorParcela() * N * M)
+                                );
+                                seleccionado.setRiesgoAsociado((int)(riesgo * 100));
+                                seleccionado.setGananciaObtenida(ganancia);
 
-                    // Actualizar contador de cultivos usados
-                    cultivosUsados.put(nombreCultivo,
-                            cultivosUsados.getOrDefault(nombreCultivo, 0) + 1);
+                                cultivosUsados.put(nombreCultivo, cultivosUsados.getOrDefault(nombreCultivo, 0) + 1);
+                                marcarParcelas(i, j, N, M, parcelasUsadas, true);
+                                configuracionActual.add(seleccionado);
 
-                    // Marcar parcelas como usadas
-                    marcarParcelas(i, j, DIMENSION, DIMENSION, parcelasUsadas, true);
-                    configuracionActual.add(seleccionado);
+                                // Llamada recursiva al siguiente nivel de backtracking
+                                backtracking(cultivos, configuracionActual, indiceCultivo + 1,
+                                        gananciaActual + ganancia, parcelasUsadas, riesgos,
+                                        gananciaMaximaPorParcela, cultivosUsados, cultivoMultiple);
 
-                    // Llamada recursiva
-                    backtracking(cultivos, configuracionActual, indiceCultivo + 1,
-                            gananciaActual + ganancia, parcelasUsadas, riesgos,
-                            gananciaMaximaPorParcela, cultivosUsados);
-
-                    // Deshacer cambios (backtracking)
-                    configuracionActual.remove(configuracionActual.size() - 1);
-                    marcarParcelas(i, j, DIMENSION, DIMENSION, parcelasUsadas, false);
-                    // Deshacer el contador de cultivos usados
-                    cultivosUsados.put(nombreCultivo,
-                            cultivosUsados.get(nombreCultivo) - 1);
+                                // Deshacer los cambios (backtracking)
+                                configuracionActual.remove(configuracionActual.size() - 1);
+                                marcarParcelas(i, j, N, M, parcelasUsadas, false);
+                                cultivosUsados.put(nombreCultivo, cultivosUsados.get(nombreCultivo) - 1);
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        // Probar sin colocar el cultivo actual
+        // Intentar sin colocar el cultivo actual
         backtracking(cultivos, configuracionActual, indiceCultivo + 1,
-                gananciaActual, parcelasUsadas, riesgos, gananciaMaximaPorParcela, cultivosUsados);
+                gananciaActual, parcelasUsadas, riesgos, gananciaMaximaPorParcela, cultivosUsados, cultivoMultiple);
     }
+
 
     private double calcularGananciaMaximaPorParcela(List<Cultivo> cultivos) {
         double gananciaMaxima = 0;
@@ -166,10 +174,10 @@ public class PlanificarCultivosImplementacion implements PlanificarCultivos {
     }
 
 
-    private double calcularGanancia(int fila, int columna, int dimension, Cultivo cultivo, double[][] riesgos) {
+    private double calcularGanancia(int fila, int columna, int dimensionX, int dimensionY, Cultivo cultivo, double[][] riesgos) {
         double gananciaTotal = 0;
-        for (int i = fila; i < fila + dimension; i++) {
-            for (int j = columna; j < columna + dimension; j++) {
+        for (int i = fila; i < fila + dimensionX; i++) {
+            for (int j = columna; j < columna + dimensionY; j++) {
                 double riesgo = riesgos[i][j];
                 gananciaTotal += (1 - riesgo) * (cultivo.getPrecioDeVentaPorParcela() - cultivo.getCostoPorParcela());
             }
@@ -177,11 +185,11 @@ public class PlanificarCultivosImplementacion implements PlanificarCultivos {
         return gananciaTotal - cultivo.getInversionRequerida();
     }
 
-    private double calcularRiesgo(int fila, int columna, int dimension, double[][] riesgos) {
+    private double calcularRiesgo(int fila, int columna, int dimensionX, int dimensionY, double[][] riesgos) {
         double riesgoTotal = 0;
-        int numParcelas = dimension * dimension;
-        for (int i = fila; i < fila + dimension; i++) {
-            for (int j = columna; j < columna + dimension; j++) {
+        int numParcelas = dimensionX * dimensionY;
+        for (int i = fila; i < fila + dimensionX; i++) {
+            for (int j = columna; j < columna + dimensionY; j++) {
                 riesgoTotal += riesgos[i][j];
             }
         }

@@ -13,7 +13,7 @@ import java.util.Map;
 public class PlanificarCultivosImplementacion implements PlanificarCultivos {
     private double mejorGanancia = Double.NEGATIVE_INFINITY;
     private List<CultivoSeleccionado> mejorConfiguracion = new ArrayList<>();
-    private static final int CAMPO_SIZE = 50;
+    private static final int CAMPO_SIZE = 100;
     private static final int DIMENSION = 5; // Dimensión fija 5x5
     private String cultivoMultiple;
 
@@ -79,10 +79,10 @@ public class PlanificarCultivosImplementacion implements PlanificarCultivos {
         // Intentar colocar el cultivo en diferentes posiciones
         for (int i = 0; i < CAMPO_SIZE - DIMENSION + 1; i++) {
             for (int j = 0; j < CAMPO_SIZE - DIMENSION + 1; j++) {
-                if (esValida(i, j, DIMENSION, DIMENSION, parcelasUsadas)) {
+                if (esValida(i, j, parcelasUsadas)) {
                     // Calcular valores para el cultivo en esta posición
-                    double ganancia = calcularGanancia(i, j, DIMENSION, DIMENSION, cultivoActual, riesgos);
-                    double riesgo = calcularRiesgo(i, j, DIMENSION, DIMENSION, riesgos);
+                    double ganancia = calcularGanancia(i, j, DIMENSION, cultivoActual, riesgos);
+                    double riesgo = calcularRiesgo(i, j, DIMENSION, riesgos);
 
                     // Crear el cultivo seleccionado
                     CultivoSeleccionado seleccionado = new CultivoSeleccionado();
@@ -147,16 +147,13 @@ public class PlanificarCultivosImplementacion implements PlanificarCultivos {
 
 
     private boolean esValida(int fila, int columna, int alto, int ancho, boolean[][] parcelasUsadas) {
-        // Verificar límites del campo
         if (fila + alto > CAMPO_SIZE || columna + ancho > CAMPO_SIZE) {
             return false;
         }
-
-        // Verificar restricción N + M ≤ 11
-        if (alto + ancho > 11) {
+        // Verificar restricción flexible, puedes parametrizar el valor 11 o eliminarlo si no aplica.
+        if (alto + ancho > 11) {  // Considera hacerlo configurable.
             return false;
         }
-
         // Verificar si hay parcelas ocupadas
         for (int i = fila; i < fila + alto; i++) {
             for (int j = columna; j < columna + ancho; j++) {
@@ -165,37 +162,32 @@ public class PlanificarCultivosImplementacion implements PlanificarCultivos {
                 }
             }
         }
-
         return true;
     }
 
-    private double calcularGanancia(int fila, int columna, int alto, int ancho,
-                                    Cultivo cultivo, double[][] riesgos) {
-        double gananciaTotal = 0;
 
-        for (int i = fila; i < fila + alto; i++) {
-            for (int j = columna; j < columna + ancho; j++) {
+    private double calcularGanancia(int fila, int columna, int dimension, Cultivo cultivo, double[][] riesgos) {
+        double gananciaTotal = 0;
+        for (int i = fila; i < fila + dimension; i++) {
+            for (int j = columna; j < columna + dimension; j++) {
                 double riesgo = riesgos[i][j];
-                gananciaTotal += (1 - riesgo) *
-                        (cultivo.getPrecioDeVentaPorParcela() - cultivo.getCostoPorParcela());
+                gananciaTotal += (1 - riesgo) * (cultivo.getPrecioDeVentaPorParcela() - cultivo.getCostoPorParcela());
             }
         }
-
         return gananciaTotal - cultivo.getInversionRequerida();
     }
 
-    private double calcularRiesgo(int fila, int columna, int alto, int ancho, double[][] riesgos) {
+    private double calcularRiesgo(int fila, int columna, int dimension, double[][] riesgos) {
         double riesgoTotal = 0;
-        int numParcelas = alto * ancho;
-
-        for (int i = fila; i < fila + alto; i++) {
-            for (int j = columna; j < columna + ancho; j++) {
+        int numParcelas = dimension * dimension;
+        for (int i = fila; i < fila + dimension; i++) {
+            for (int j = columna; j < columna + dimension; j++) {
                 riesgoTotal += riesgos[i][j];
             }
         }
-
         return riesgoTotal / numParcelas;
     }
+
 
     private void marcarParcelas(int fila, int columna, int alto, int ancho,
                                 boolean[][] parcelasUsadas, boolean valor) {

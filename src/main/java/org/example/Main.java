@@ -13,6 +13,7 @@ public class Main {
 
         List<Cultivo> cultivos = new ArrayList<>();
 
+        // Cultivos de Otoño
         Cultivo cultivo = new Cultivo();
         cultivo.setNombre("Lechuga");
         cultivo.setCostoPorParcela(100.5);
@@ -38,19 +39,20 @@ public class Main {
         cultivos.add(cultivo);
 
         cultivo = new Cultivo();
+        cultivo.setNombre("Brócoli");
+        cultivo.setCostoPorParcela(115.0);
+        cultivo.setInversionRequerida(1800);
+        cultivo.setPrecioDeVentaPorParcela(510);
+        cultivo.setTemporadaOptima("Otoño");
+        cultivos.add(cultivo);
+
+        // Cultivos de Verano
+        cultivo = new Cultivo();
         cultivo.setNombre("Tomate");
         cultivo.setCostoPorParcela(110.0);
         cultivo.setInversionRequerida(2500);
         cultivo.setPrecioDeVentaPorParcela(600);
         cultivo.setTemporadaOptima("Verano");
-        cultivos.add(cultivo);
-
-        cultivo = new Cultivo();
-        cultivo.setNombre("Zanahoria");
-        cultivo.setCostoPorParcela(90.0);
-        cultivo.setInversionRequerida(1200);
-        cultivo.setPrecioDeVentaPorParcela(430);
-        cultivo.setTemporadaOptima("Primavera");
         cultivos.add(cultivo);
 
         cultivo = new Cultivo();
@@ -61,6 +63,16 @@ public class Main {
         cultivo.setTemporadaOptima("Verano");
         cultivos.add(cultivo);
 
+        // Cultivos de Primavera
+        cultivo = new Cultivo();
+        cultivo.setNombre("Zanahoria");
+        cultivo.setCostoPorParcela(90.0);
+        cultivo.setInversionRequerida(1200);
+        cultivo.setPrecioDeVentaPorParcela(430);
+        cultivo.setTemporadaOptima("Primavera");
+        cultivos.add(cultivo);
+
+        // Cultivos de Invierno
         cultivo = new Cultivo();
         cultivo.setNombre("Espinaca");
         cultivo.setCostoPorParcela(85.0);
@@ -69,27 +81,23 @@ public class Main {
         cultivo.setTemporadaOptima("Invierno");
         cultivos.add(cultivo);
 
-        cultivo = new Cultivo();
-        cultivo.setNombre("Brócoli");
-        cultivo.setCostoPorParcela(115.0);
-        cultivo.setInversionRequerida(1800);
-        cultivo.setPrecioDeVentaPorParcela(510);
-        cultivo.setTemporadaOptima("Otoño");
-        cultivos.add(cultivo);
-
-
+        // Crear matriz de riesgos
         double[][] riesgos = new double[100][100];
         for (int i = 0; i < 100; i++) {
             for (int j = 0; j < 100; j++) {
                 riesgos[i][j] = (i + j) / 200.0;
             }
         }
+        // Imprimir matriz de riesgos
         imprimirMatrizDeRiesgos(riesgos);
 
+        // Obtener planificación
         List<CultivoSeleccionado> res = planificador.obtenerPlanificacion(cultivos, riesgos, "Otoño");
+        // Imprimir planificación
         imprimirResultado(res);
     }
 
+    // Funciones auxiliares
     private static void imprimirMatrizDeRiesgos(double[][] riesgos) {
         for (int i = 0; i < 100; i++) {
             for (int j = 0; j < 100; j++) {
